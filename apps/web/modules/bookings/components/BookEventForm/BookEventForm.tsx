@@ -44,6 +44,14 @@ type BookEventFormProps = {
     backButton?: string;
   };
   timeslot: string | null;
+  /**
+   * Custom header text to display above the booking form fields.
+   */
+  customFormHeader?: string | null;
+  /**
+   * Custom subheader text to display below the header.
+   */
+  customFormSubheader?: string | null;
 };
 
 export const BookEventForm = ({
@@ -64,6 +72,8 @@ export const BookEventForm = ({
   confirmButtonDisabled,
   classNames,
   timeslot,
+  customFormHeader,
+  customFormSubheader,
 }: Omit<BookEventFormProps, "event"> & {
   eventQuery: {
     isError: boolean;
@@ -128,6 +138,17 @@ export const BookEventForm = ({
         form={bookingForm}
         handleSubmit={onSubmit}
         noValidate>
+        {/* Custom header/subheader from URL params */}
+        {(customFormHeader || customFormSubheader) && (
+          <div className="mb-4 text-center">
+            {customFormHeader && (
+              <h3 className="text-emphasis text-lg font-semibold">{customFormHeader}</h3>
+            )}
+            {customFormSubheader && (
+              <p className="text-subtle mt-1 text-sm">{customFormSubheader}</p>
+            )}
+          </div>
+        )}
         <BookingFields
           isDynamicGroupBooking={!!(username && username.indexOf("+") > -1)}
           fields={eventType.bookingFields}

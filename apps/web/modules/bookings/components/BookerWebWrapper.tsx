@@ -66,6 +66,9 @@ const BookerWebWrapperComponent = (props: BookerWebWrapperAtomProps) => {
   const bookingUid =
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("bookingUid") : null;
   const timezone = searchParams?.get("cal.tz") || null;
+  // Custom form header/subheader from URL params (for personalized booking forms)
+  const customFormHeader = searchParams?.get("header") || null;
+  const customFormSubheader = searchParams?.get("subheader") || null;
 
   useEffect(() => {
     // This event isn't processed by BookingPageTagManager because BookingPageTagManager hasn't loaded when it is fired. I think we should have a queue in fire method to handle this.
@@ -261,6 +264,8 @@ const BookerWebWrapperComponent = (props: BookerWebWrapperAtomProps) => {
       areInstantMeetingParametersSet={areInstantMeetingParametersSet}
       userLocale={session?.user.locale}
       renderCaptcha
+      customFormHeader={customFormHeader}
+      customFormSubheader={customFormSubheader}
     />
   );
 };

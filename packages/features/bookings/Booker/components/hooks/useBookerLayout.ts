@@ -77,11 +77,13 @@ export const useBookerLayout = (
   const shouldShowFormInDialog = shouldShowFormInDialogMap[layout];
 
   const hideEventTypeDetailsParam = getQueryParam("hideEventTypeDetails");
-  const hideEventTypeDetails = isEmbed
-    ? embedUiConfig.hideEventTypeDetails
-    : typeof hideEventTypeDetailsParam === "string"
-    ? hideEventTypeDetailsParam === "true"
-    : false;
+  // Check URL param first (more reliable for embeds), then fall back to embed config
+  const hideEventTypeDetails =
+    typeof hideEventTypeDetailsParam === "string"
+      ? hideEventTypeDetailsParam === "true"
+      : isEmbed
+      ? embedUiConfig.hideEventTypeDetails
+      : false;
 
   return {
     shouldShowFormInDialog,

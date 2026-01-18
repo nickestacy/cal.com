@@ -83,6 +83,8 @@ const BookerComponent = ({
   eventMetaChildren,
   roundRobinHideOrgAndTeam,
   showNoAvailabilityDialog,
+  customFormHeader,
+  customFormSubheader,
 }: BookerProps & WrappedBookerProps) => {
   const searchParams = useCompatSearchParams();
   const isPlatformBookerEmbed = useIsPlatformBookerEmbed();
@@ -272,7 +274,9 @@ const BookerComponent = ({
           confirmButton: customClassNames?.confirmStep?.confirmButton,
           backButton: customClassNames?.confirmStep?.backButton,
         }}
-        isPlatform={isPlatform}>
+        isPlatform={isPlatform}
+        customFormHeader={customFormHeader}
+        customFormSubheader={customFormSubheader}>
         <>
           {!isPlatform && (
             <RedirectToInstantMeetingModal

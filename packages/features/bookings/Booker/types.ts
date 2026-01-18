@@ -105,6 +105,16 @@ export interface BookerProps {
   userLocale?: string | null;
   hasValidLicense?: boolean;
   useApiV2?: boolean;
+  /**
+   * Custom header text to display above the booking form fields.
+   * Passed via URL query parameter 'header'.
+   */
+  customFormHeader?: string | null;
+  /**
+   * Custom subheader text to display below the header and above the booking form fields.
+   * Passed via URL query parameter 'subheader'.
+   */
+  customFormSubheader?: string | null;
 }
 
 export type WrappedBookerPropsMain = {

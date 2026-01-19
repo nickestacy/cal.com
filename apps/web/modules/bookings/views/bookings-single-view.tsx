@@ -190,6 +190,9 @@ export default function Success(props: PageProps) {
   const isEmbed = useIsEmbed();
   const shouldAlignCentrallyInEmbed = useEmbedNonStylesConfig("align") !== "left";
   const shouldAlignCentrally = !isEmbed || shouldAlignCentrallyInEmbed;
+
+  // In embed mode, hide detailed booking information for a cleaner confirmation experience
+  const shouldHideDetailsInEmbed = isEmbed;
   const [calculatedDuration, setCalculatedDuration] = useState<number | undefined>(undefined);
   const [comment, setComment] = useState("");
   const currentUserEmail =
@@ -587,44 +590,52 @@ export default function Success(props: PageProps) {
                             </div>
                           </>
                         )}
-                        <div className="font-medium">{t("what")}</div>
-                        <div
-                          className="wrap-break-word col-span-2 mb-6 last:mb-0"
-                          data-testid="booking-title">
-                          {isRoundRobin
-                            ? typeof bookingInfo.title === "string"
-                              ? bookingInfo.title
-                              : eventName
-                            : eventName}
-                        </div>
-                        <div className="font-medium">{t("when")}</div>
-                        <div className="col-span-2 mb-6 last:mb-0">
-                          {reschedule && !!formerTime && (
-                            <p className="line-through">
+                        {!shouldHideDetailsInEmbed && (
+                          <>
+                            <div className="font-medium">{t("what")}</div>
+                            <div
+                              className="wrap-break-word col-span-2 mb-6 last:mb-0"
+                              data-testid="booking-title">
+                              {isRoundRobin
+                                ? typeof bookingInfo.title === "string"
+                                  ? bookingInfo.title
+                                  : eventName
+                                : eventName}
+                            </div>
+                          </>
+                        )}
+                        {!shouldHideDetailsInEmbed && (
+                          <>
+                            <div className="font-medium">{t("when")}</div>
+                            <div className="col-span-2 mb-6 last:mb-0">
+                              {reschedule && !!formerTime && (
+                                <p className="line-through">
+                                  <RecurringBookings
+                                    eventType={eventType}
+                                    duration={calculatedDuration}
+                                    recurringBookings={props.recurringBookings}
+                                    allRemainingBookings={allRemainingBookings}
+                                    date={dayjs(formerTime)}
+                                    is24h={is24h}
+                                    isCancelled={isCancelled}
+                                    tz={tz}
+                                  />
+                                </p>
+                              )}
                               <RecurringBookings
                                 eventType={eventType}
                                 duration={calculatedDuration}
                                 recurringBookings={props.recurringBookings}
                                 allRemainingBookings={allRemainingBookings}
-                                date={dayjs(formerTime)}
+                                date={date}
                                 is24h={is24h}
                                 isCancelled={isCancelled}
                                 tz={tz}
                               />
-                            </p>
-                          )}
-                          <RecurringBookings
-                            eventType={eventType}
-                            duration={calculatedDuration}
-                            recurringBookings={props.recurringBookings}
-                            allRemainingBookings={allRemainingBookings}
-                            date={date}
-                            is24h={is24h}
-                            isCancelled={isCancelled}
-                            tz={tz}
-                          />
-                        </div>
-                        {(bookingInfo?.user || bookingInfo?.attendees) && (
+                            </div>
+                          </>
+                        )}
+                        {!shouldHideDetailsInEmbed && (bookingInfo?.user || bookingInfo?.attendees) && (
                           <>
                             <div className="font-medium">{t("who")}</div>
                             <div className="col-span-2 last:mb-0">
@@ -670,7 +681,7 @@ export default function Success(props: PageProps) {
                             </div>
                           </>
                         )}
-                        {locationToDisplay && !isCancelled && (
+                        {!shouldHideDetailsInEmbed && locationToDisplay && !isCancelled && (
                           <>
                             <div className="mt-3 font-medium">{t("where")}</div>
                             <div className="col-span-2 mt-3" data-testid="where">
@@ -765,47 +776,49 @@ export default function Success(props: PageProps) {
                           </>
                         )}
                       </div>
-                      <div className="text-bookingdark dark:border-darkgray-200 mt-8 text-left dark:text-gray-300">
-                        {eventType.bookingFields.map((field) => {
-                          if (!field) return null;
+                      {!shouldHideDetailsInEmbed && (
+                        <div className="text-bookingdark dark:border-darkgray-200 mt-8 text-left dark:text-gray-300">
+                          {eventType.bookingFields.map((field) => {
+                            if (!field) return null;
 
-                          if (!bookingInfo.responses[field.name]) return null;
+                            if (!bookingInfo.responses[field.name]) return null;
 
-                          const response = bookingInfo.responses[field.name];
-                          // We show location in the "where" section
-                          // We show Booker Name, Emails and guests in Who section
-                          // We show notes in additional notes section
-                          // We show rescheduleReason at the top
+                            const response = bookingInfo.responses[field.name];
+                            // We show location in the "where" section
+                            // We show Booker Name, Emails and guests in Who section
+                            // We show notes in additional notes section
+                            // We show rescheduleReason at the top
 
-                          if (!shouldShowFieldInCustomResponses(field.name)) {
-                            return null;
-                          }
+                            if (!shouldShowFieldInCustomResponses(field.name)) {
+                              return null;
+                            }
 
-                          const label = field.label || t(field.defaultLabel);
+                            const label = field.label || t(field.defaultLabel);
 
-                          return (
-                            <Fragment key={field.name}>
-                              {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized via markdownToSafeHTML */}
-                              <div
-                                className="text-emphasis mt-4 font-medium"
-                                dangerouslySetInnerHTML={{
-                                  __html: markdownToSafeHTML(label),
-                                }}
-                              />
-                              <p
-                                className="text-default wrap-break-word"
-                                data-testid="field-response"
-                                data-fob-field={field.name}>
-                                {field.type === "boolean"
-                                  ? response
-                                    ? t("yes")
-                                    : t("no")
-                                  : response.toString()}
-                              </p>
-                            </Fragment>
-                          );
-                        })}
-                      </div>
+                            return (
+                              <Fragment key={field.name}>
+                                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized via markdownToSafeHTML */}
+                                <div
+                                  className="text-emphasis mt-4 font-medium"
+                                  dangerouslySetInnerHTML={{
+                                    __html: markdownToSafeHTML(label),
+                                  }}
+                                />
+                                <p
+                                  className="text-default wrap-break-word"
+                                  data-testid="field-response"
+                                  data-fob-field={field.name}>
+                                  {field.type === "boolean"
+                                    ? response
+                                      ? t("yes")
+                                      : t("no")
+                                    : response.toString()}
+                                </p>
+                              </Fragment>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                     {requiresLoginToUpdate && (
                       <>
